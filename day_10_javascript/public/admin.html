@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>My Blog</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyCrt14FL037LON_QhS4fv0HBSrbgssnKuc",
+        authDomain: "my-blog-32b6c.firebaseapp.com",
+        databaseURL: "https://my-blog-32b6c.firebaseio.com",
+        storageBucket: "my-blog-32b6c.appspot.com",
+        messagingSenderId: "924442696954"
+      };
+      firebase.initializeApp(config);
+
+
+      $(document).ready(function(){
+        $('#post-form').on('submit', function(event){
+          event.preventDefault();
+          firebase.database().ref().child('posts').push({
+            title: $('#title').val(),
+            body: $('#body').val()
+          }, function(error){
+            if(error){
+              alert(`problem creating post ${error}`);
+            } else {
+              alert('post created successfully');
+              $('#title').val('');
+              $('#body').val('');
+            }
+          });
+        });
+
+        // When the login form is submitted
+        // send a login request to firebase
+        // if that goes ok, show admin section and hide login form
+        // otherwise show alert that login failed
+        $('#login-form').on('submit', function(event){
+          event.preventDefault();
+
+          firebase.auth().signInWithEmailAndPassword($('#email').val(),
+                                                     $('#password').val())
+             .then(function(){
+               $('#login-section').fadeOut();
+               $('#admin-section').fadeIn();
+             }).catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                alert(errorMessage + errorCode);
+              });
+
+        });
+
+        // this will get executed whenever the document is ready so if the user
+        // is signed in, we will show the admin section which has the create
+        // post form, otherwise we show the login form.
+        firebase.auth().onAuthStateChanged(function(user) {
+                  if (user) {
+                    $('#admin-section').fadeIn();
+                  } else {
+                    $('#login-section').fadeIn();
+                  }
+                });
+
+       $('#logout-btn').on('click', function(){
+         firebase.auth().signOut().then(function() {
+                    $('#admin-section').fadeOut(500, function(){
+                      $('#login-section').fadeIn();
+                    });
+                  }, function(error) {
+                    alert('problem signing out');
+                  });
+       });
+
+      });
+    </script>
+
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href='index.html' class="navbar-brand">Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div id="login-section" style="display:none;">
+        <form action="" method="" id="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="email">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="password">
+          </div>
+          <input type="submit" class="btn btn-primary" value="Sign In">
+        </form>
+      </div>
+
+      <div id="admin-section" style="display:none;">
+        <a href="javascript:void(0);" id="logout-btn">Log Out</a>
+        <h1>Create a blog post</h1>
+        <form action="" method="" id="post-form">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title" placeholder="title">
+          </div>
+          <div class='form-group'>
+            <label for="body">Body</label>
+            <textarea id="body" rows="8" cols="80" class="form-control"></textarea>
+          </div>
+          <input type="submit" value="Create Blog Post" class="btn btn-primary">
+        </form>
+      </div>
+    </div>
+
+  </body>
+</html>

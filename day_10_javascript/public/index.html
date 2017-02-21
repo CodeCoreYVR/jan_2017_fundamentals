@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>My Blog</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script>
+      $(document).ready(function(){
+        $('#content').html('Hello World!');
+        $('#google-link').on('click', function(event){
+          event.preventDefault();
+          alert('link clicked');
+          // this will also prevent the default behaviour of the element
+          // return false;
+        });
+
+        $('#post-form').on('submit', function(event){
+          event.preventDefault();
+          console.log(`The title of the post is ${$('#title').val()}`);
+          console.log(`The body of the post is ${$('#body').val()}`);
+        });
+
+      });
+    </script>
+
+
+    <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyCrt14FL037LON_QhS4fv0HBSrbgssnKuc",
+        authDomain: "my-blog-32b6c.firebaseapp.com",
+        databaseURL: "https://my-blog-32b6c.firebaseio.com",
+        storageBucket: "my-blog-32b6c.appspot.com",
+        messagingSenderId: "924442696954"
+      };
+      firebase.initializeApp(config);
+
+      $(document).ready(function(){
+        firebase.database().ref('posts').once('value').then(
+          function(data){
+            console.log(data);
+            const posts = data.val();
+            for(let key in posts) {
+              $('#posts').append(`
+                <div class='well'>
+                  <h3>
+                    <a href='show.html#${key}'>${posts[key].title}</a>
+                  </h3>
+                </div>
+                `);
+              }
+            }
+          );
+      });
+
+    </script>
+
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href='index.html' class="navbar-brand">Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Welcome to my Blog</h1>
+
+      <div id='posts'></div>
+    </div>
+
+  </body>
+</html>
